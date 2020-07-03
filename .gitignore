@@ -90,7 +90,6 @@ dlldata.c
 *.tlb
 *.tli
 *.tlh
-*.tmp
 *.tmp_proj
 *.log
 *.vspscc
@@ -256,3 +255,4 @@ $RECYCLE.BIN/
 
 # Kopernicus
 build/GameData/Kopernicus/Cache/
+*.Parser.dll

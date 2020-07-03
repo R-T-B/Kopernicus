@@ -44,25 +44,40 @@ namespace Kopernicus.Components
         public static List<KopernicusStar> Stars;
 
         /// <summary>
-        /// A dictionary to get the <see cref="KopernicusStar"/> component using the <see cref="CelestialBody"/>.
+        /// A list of all stars
         /// </summary>
         public static Dictionary<CelestialBody, KopernicusStar> CelestialBodies;
 
         /// <summary>
-        /// A list of all <see cref="Sun"/><i>s</i> and their luminosity
+        /// A list of all stars and their luminosity
         /// </summary>
-        public static Dictionary<Sun, Double> StarsLuminosity
+        public static Dictionary<KopernicusStar, Double> StarsLuminosity
         {
             get
             {
-                return Stars.ToDictionary(star => star as Sun, star => star.shifter.solarLuminosity);
+                return Stars.ToDictionary(star => star, star => star.shifter.solarLuminosity);
             }
         }
 
         /// <summary>
-        /// The currently active <see cref="KopernicusStar"/>, for stuff we can't patch
+        /// The results of the latest flux calculation for each star
+        /// </summary>
+        public static Dictionary<String, Double> SolarFlux;
+
+        /// <summary>
+        /// The currently active star, for stuff we cant patch
         /// </summary>
         public static KopernicusStar Current;
+
+        /// <summary>
+        /// The stock Sun
+        /// </summary>
+        public static KopernicusStar StockSun;
+
+        /// <summary>
+        /// The SolarIntensityAtHomeMultiplier
+        /// </summary>
+        public static double SolarIntensityAtHomeMultiplier = 0;
 
         /// <summary>
         /// The sunlight
@@ -80,9 +95,95 @@ namespace Kopernicus.Components
         public LightShifter shifter;
 
         /// <summary>
-        /// The <see cref="SunFlare"/> component that controls the lensflare assigned to this star
+        /// The SunFlare component that controls the lensflare assigned to this star
         /// </summary>
         public KopernicusSunFlare lensFlare;
+
+        /// <summary>
+        /// Fixes the Calculation for Luminosity
+        /// NEVER REMOVE THIS AGAIN!
+        /// EVEN IF SQUAD MAKES EVERY FIELD PUBLIC AND OPENSOURCE AND WHATNOT
+        /// </summary>
+        internal static void CalculatePhysics()
+        {
+            if (!FlightGlobals.ready)
+            {
+                return;
+            }
+
+            if (SolarIntensityAtHomeMultiplier == 0)
+            {
+                CelestialBody homeBody = FlightGlobals.GetHomeBody();
+                if (homeBody == null)
+                {
+                    return;
+                }
+
+                while (Stars.All(s => s.sun != homeBody.referenceBody) && homeBody.referenceBody != null)
+                {
+                    homeBody = homeBody.referenceBody;
+                }
+
+                SolarIntensityAtHomeMultiplier = Math.Pow(homeBody.orbit.semiMajorAxis, 2) * 4 * 3.14159265358979;
+            }
+
+            CalculatePhysics(SolarIntensityAtHomeMultiplier * PhysicsGlobals.SolarLuminosityAtHome);
+        }
+
+        /// <summary>
+        /// Applies The Calculation for Luminosity
+        /// </summary>
+        internal static void CalculatePhysics(Double solarLuminosity)
+        {
+            if (!FlightGlobals.ready)
+            {
+                return;
+            }
+
+            FieldInfo SolarLuminosity = typeof(PhysicsGlobals).GetField("solarLuminosity", BindingFlags.Instance | BindingFlags.NonPublic);
+            SolarLuminosity.SetValue(PhysicsGlobals.Instance, solarLuminosity);
+        }
+
+        /// <summary>
+        /// Small method to handle flux
+        /// </summary>
+        [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
+        private static Double Flux(ModularFlightIntegrator fi, KopernicusStar star)
+        {
+            // Nullchecks
+            if (fi.Vessel == null || fi.Vessel.state == Vessel.State.DEAD || fi.CurrentMainBody == null)
+            {
+                return 0;
+            }
+
+            // Get sunVector
+            Boolean directSunlight = false;
+            Vector3 integratorPosition = fi.transform.position;
+            Vector3d scaledSpace = ScaledSpace.LocalToScaledSpace(integratorPosition);
+            Vector3d position = star.sun.scaledBody.transform.position;
+            Double scale = Math.Max((position - scaledSpace).magnitude, 1);
+            Vector3 sunVector = (position - scaledSpace) / scale;
+            Ray ray = new Ray(ScaledSpace.LocalToScaledSpace(integratorPosition), sunVector);
+            // Get Solar Flux
+            Double realDistanceToSun = 0;
+            if (!Physics.Raycast(ray, out RaycastHit raycastHit, Single.MaxValue, ModularFlightIntegrator.SunLayerMask))
+            {
+                directSunlight = true;
+                realDistanceToSun = scale * ScaledSpace.ScaleFactor - star.sun.Radius;
+            }
+            else if (raycastHit.transform.GetComponent<ScaledMovement>().celestialBody == star.sun)
+            {
+                realDistanceToSun = ScaledSpace.ScaleFactor * raycastHit.distance;
+                directSunlight = true;
+            }
+
+            if (directSunlight)
+            {
+                return PhysicsGlobals.SolarLuminosity / (12.5663706143592 * realDistanceToSun * realDistanceToSun);
+            }
+
+            return 0;
+        }
 
         /// <summary>
         /// Returns the star the given body orbits
@@ -100,6 +201,11 @@ namespace Kopernicus.Components
             if (Stars == null)
             {
                 Stars = new List<KopernicusStar>();
+            }
+
+            if (SolarFlux == null)
+            {
+                SolarFlux = new Dictionary<String, Double>();
             }
 
             Stars.Add(this);
@@ -264,106 +370,6 @@ namespace Kopernicus.Components
                 light.intensity = Mathf.Lerp(0f, light.intensity,
                     Mathf.InverseLerp(fadeEndAtAlt, fadeStartAtAlt, localTime));
             }
-        }
-
-        /// <summary>
-        /// Returns the <see cref="Vessel.solarFlux"/> at the given location.
-        /// </summary>
-        public Double CalculateFluxAt(Vessel vessel)
-        {
-            // Get sunVector
-            Boolean directSunlight = false;
-            Vector3 integratorPosition = vessel.transform.position;
-            Vector3d scaledSpace = ScaledSpace.LocalToScaledSpace(integratorPosition);
-            Vector3 position = sun.scaledBody.transform.position;
-            Double scale = Math.Max((position - scaledSpace).magnitude, 1);
-            Vector3 sunVector = (position - scaledSpace) / scale;
-            Ray ray = new Ray(ScaledSpace.LocalToScaledSpace(integratorPosition), sunVector);
-
-            // Get Thermal Stats
-            if (vessel.mainBody.atmosphere && !vessel.mainBody.isStar)
-            {
-                if (sun == GetBodyReferencing(vessel.mainBody))
-                {
-                    FlightIntegrator FI = vessel.GetComponent<FlightIntegrator>();
-                    vessel.mainBody.GetAtmoThermalStats(true, sun, sunVector, Vector3d.Dot(sunVector, vessel.upAxis), vessel.upAxis, vessel.altitude, out FI.atmosphereTemperatureOffset, out FI.bodyEmissiveFlux, out FI.bodyAlbedoFlux);
-                }
-            }
-
-            // Get Solar Flux
-            Double realDistanceToSun = 0;
-            if (!Physics.Raycast(ray, out RaycastHit raycastHit, Single.MaxValue, ModularFlightIntegrator.SunLayerMask))
-            {
-                directSunlight = true;
-                realDistanceToSun = scale * ScaledSpace.ScaleFactor - sun.Radius;
-            }
-            else if (raycastHit.transform.GetComponent<ScaledMovement>().celestialBody == sun)
-            {
-                realDistanceToSun = ScaledSpace.ScaleFactor * raycastHit.distance;
-                directSunlight = true;
-            }
-
-            if (directSunlight)
-            {
-                Double output = PhysicsGlobals.SolarLuminosity / (12.5663706143592 * realDistanceToSun * realDistanceToSun);
-                return output;
-            }
-
-            return 0;
-        }
-
-        /// <summary>
-        /// Override for <see cref="FlightIntegrator.CalculateSunBodyFlux"/>
-        /// </summary>
-        public static void SunBodyFlux(ModularFlightIntegrator MFI)
-        {
-            // Nullchecks
-            if (MFI.Vessel == null || MFI.Vessel.state == Vessel.State.DEAD || MFI.CurrentMainBody == null)
-            {
-                return;
-            }
-
-            Double solarFlux = 0;
-
-            // Calculate the values for all bodies
-            for (Int32 i = 0; i < KopernicusStar.Stars.Count; i++)
-            {
-                KopernicusStar star = KopernicusStar.Stars[i];
-
-                if (star == KopernicusStar.Current)
-                {
-                    continue;
-                }
-
-                // Set Physics
-                star.shifter.ApplyPhysics();
-
-                // Calculate Flux
-                solarFlux += star.CalculateFluxAt(MFI.Vessel) * PhysicsGlobals.SolarLuminosityAtHome / 1360;
-            }
-
-            // Set Physics to the Current Star
-            KopernicusStar.Current.shifter.ApplyPhysics();
-
-            // Calculate Flux
-            solarFlux += Current.CalculateFluxAt(MFI.Vessel) * PhysicsGlobals.SolarLuminosityAtHome / 1360;
-
-            // Reapply
-            MFI.Vessel.directSunlight = solarFlux > 0;
-            MFI.solarFlux = solarFlux;
-        }
-
-        /// <summary>
-        /// Returns the <see cref="CelestialBody"/> directly orbiting the parent <see cref="KopernicusStar"/> for a given <see cref="CelestialBody"/>.
-        /// </summary>
-        public static CelestialBody GetBodyReferencing(CelestialBody body)
-        {
-            while (body?.orbit?.referenceBody != null && !body.orbit.referenceBody.isStar)
-            {
-                body = body.orbit.referenceBody;
-            }
-
-            return body;
         }
 
         /// <summary>
