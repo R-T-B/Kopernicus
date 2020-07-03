@@ -39,10 +39,9 @@ namespace Kopernicus.Components.ModularScatter
     public class ScatterCollidersComponent : IComponent<ModularScatter>
     {
         /// <summary>
-        /// How many scatters were active the last time we added colliders.
-        /// This is used to avoid checking for the colliders every frame.
+        /// Contains a List of colliders for the scatter
         /// </summary>
-        private Int32 scatterCount = 0;
+        private readonly List<MeshCollider> _meshColliders = new List<MeshCollider>();
 
         /// <summary>
         /// The mesh that is used for the collider
@@ -54,12 +53,43 @@ namespace Kopernicus.Components.ModularScatter
         /// </summary>
         void IComponent<ModularScatter>.Update(ModularScatter system)
         {
-            if (system.scatterObjects.Count == scatterCount)
+            // If there's nothing to do, discard any old colliders and abort
+            if (system.scatterObjects.Count == 0)
+            {
+                if (!_meshColliders.Any())
+                {
+                    return;
+                }
+
+                Debug.LogWarning("[Kopernicus] Discard old colliders");
+                foreach (MeshCollider collider in _meshColliders.Where(collider => collider))
+                {
+                    UnityEngine.Object.Destroy(collider);
+                }
+
+                _meshColliders.Clear();
+                return;
+            }
+
+            Boolean rebuild = false;
+            if (system.scatterObjects.Count > _meshColliders.Count)
+            {
+                Debug.LogWarning("[Kopernicus] Add " + (system.scatterObjects.Count - _meshColliders.Count) +
+                                 " colliders");
+                rebuild = true;
+            }
+            else if (system.scatterObjects.Count < _meshColliders.Count)
+            {
+                Debug.LogWarning("[Kopernicus] Remove " + (_meshColliders.Count - system.scatterObjects.Count) +
+                                 " colliders");
+                rebuild = true;
+            }
+
+            if (!rebuild)
             {
                 return;
             }
 
-            scatterCount = system.scatterObjects.Count;
             for (Int32 i = 0; i < system.scatterObjects.Count; i++)
             {
                 GameObject scatter = system.scatterObjects[i];
@@ -73,7 +103,21 @@ namespace Kopernicus.Components.ModularScatter
                 collider = scatter.AddComponent<MeshCollider>();
                 collider.sharedMesh = CollisionMesh ? CollisionMesh : filter.sharedMesh;
                 collider.enabled = true;
+                _meshColliders.Add(collider);
             }
+        }
+        
+        /// <summary>
+        /// Destroy the generated objects on a scene change so they don't appear in random positions
+        /// </summary>
+        private void OnGameSceneLoadRequested(GameScenes data)
+        {
+            foreach (MeshCollider collider in _meshColliders)
+            {
+                UnityEngine.Object.Destroy(collider);
+            }
+
+            _meshColliders.Clear();
         }
 
         void IComponent<ModularScatter>.Apply(ModularScatter system)
@@ -83,7 +127,7 @@ namespace Kopernicus.Components.ModularScatter
         
         void IComponent<ModularScatter>.PostApply(ModularScatter system)
         {
-            // We don't use this
+            GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
         }
     }
 }
