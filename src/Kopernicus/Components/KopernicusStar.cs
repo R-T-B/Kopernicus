@@ -36,7 +36,7 @@ namespace Kopernicus.Components
     /// <summary>
     /// Implementation of the <see cref="Sun"/> API.
     /// </summary>
-    public class KopernicusStar : Sun
+    public class KopernicusStar : Sun //
     {
         /// <summary>
         /// A list of all stars
