@@ -256,3 +256,4 @@ $RECYCLE.BIN/
 
 # Kopernicus
 build/GameData/Kopernicus/Cache/
+src/Kopernicus/Kopernicus.csproj

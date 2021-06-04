@@ -145,14 +145,32 @@ namespace Kopernicus.UI
             Texture2D heightMap = new Texture2D(options.Resolution, options.Resolution / 2,
                 TextureFormat.RGB24,
                 true);
-
+            Texture2D accurateHeightMap = new Texture2D(options.Resolution, options.Resolution / 2,
+                TextureFormat.RGB24,
+                true);
             // Arrays
             Color[] colorMapValues = new Color[options.Resolution * (options.Resolution / 2)];
             Color[] heightMapValues = new Color[options.Resolution * (options.Resolution / 2)];
+            Color[] heightMapAccurateValues = new Color[options.Resolution * (options.Resolution / 2)];
 
             // Create a VertexBuildData
             PQS.VertexBuildData data = new PQS.VertexBuildData();
-
+            double offset = 0;
+            try
+            {
+                foreach (PQSMod mod in celestialBody.GetComponentsInChildren<PQSMod>())
+                {
+                    if (mod is PQSMod_VertexHeightMap)
+                    {
+                        offset = (mod as PQSMod_VertexHeightMap).heightMapOffset;
+                        Debug.Log("Offset = " + offset);
+                    }
+                }
+            }
+            catch
+            {
+                Debug.Log("No heightmap specified");
+            }
             // Display
             ScreenMessage message = ScreenMessages.PostScreenMessage("Generating terrain data", Single.MaxValue,
                 ScreenMessageStyle.UPPER_CENTER);
@@ -168,6 +186,7 @@ namespace Kopernicus.UI
                 while (CanvasUpdateRegistry.IsRebuildingLayout())
                 {
                     Thread.Sleep(10);
+                    Debug.Log("Sleeping unnecessarily");
                 }
 
                 message.textInstance.text.text = "Generating terrain data: " + percent.ToString("0.00") + "%";
@@ -214,12 +233,15 @@ namespace Kopernicus.UI
                     minHeight = heightValues[i];
                 }
             }
+            
+            
 
-            Double deltaRadius = maxHeight - minHeight;
-            if (options.TextureDelta > 0)
-            {
-                deltaRadius = options.TextureDelta;
-            }
+            Double deltaRadius = maxHeight - celestialBody.Radius; //Height always between 0 and 1
+            Debug.Log("textureDelta = " + deltaRadius);
+            //if (options.TextureDelta > 0)
+            //{
+            //    deltaRadius = options.TextureDelta;
+            //}
 
             yield return null;
 
@@ -230,6 +252,9 @@ namespace Kopernicus.UI
             }
 
             message.textInstance.text.text = "Calculating color data";
+            Double heightOffsetPerc = offset / maxHeight;
+            //allowed range is heightOffsetPerc <= height <= maxHeight
+
 
             // Apply the values
             for (Int32 y = 0; y < options.Resolution / 2; y++)
@@ -247,6 +272,7 @@ namespace Kopernicus.UI
                 {
                     // Build from the Mods
                     Double height = heightValues[y * options.Resolution + x] - pqsVersion.radius;
+                    
                     if (options.ExportColor)
                     {
                         // Adjust the Color
@@ -275,6 +301,7 @@ namespace Kopernicus.UI
 
                     // Adjust the height
                     height /= deltaRadius;
+                    Double heightWithOffset = (height * (1 - heightOffsetPerc)) + heightOffsetPerc;
                     if (height < 0)
                     {
                         height = 0;
@@ -287,6 +314,8 @@ namespace Kopernicus.UI
                     // Set the Pixels
                     heightMapValues[y * options.Resolution + x] =
                         new Color((Single) height, (Single) height, (Single) height);
+                    heightMapAccurateValues[y * options.Resolution + x] =
+                        new Color((Single)heightWithOffset, (Single)heightWithOffset, (Single)heightWithOffset);
                 }
 
                 yield return null;
@@ -359,12 +388,15 @@ namespace Kopernicus.UI
                 message.textInstance.text.text = "Exporting planet maps: Height";
 
                 heightMap.SetPixels(heightMapValues);
+                accurateHeightMap.SetPixels(heightMapAccurateValues);
                 yield return null;
 
                 if (options.SaveToDisk)
                 {
                     File.WriteAllBytes(path + celestialBody.transform.name + "_Height.png",
                         heightMap.EncodeToPNG());
+                    File.WriteAllBytes(path + celestialBody.transform.name + "_HeightAcc.png",
+                        accurateHeightMap.EncodeToPNG());
                     yield return null;
                 }
 

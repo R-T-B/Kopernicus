@@ -30,48 +30,57 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="Kopernicus.Parser">
-      <HintPath>H:\KSP1111\GameData\Kopernicus\Plugins\Kopernicus.Parser.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\GameData\Kopernicus\Plugins\Kopernicus.Parser.dll</HintPath>
     </Reference>
     <Reference Include="ModularFlightIntegrator">
-      <HintPath>H:\KSP1111\GameData\ModularFlightIntegrator\ModularFlightIntegrator.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\GameData\ModularFlightIntegrator\ModularFlightIntegrator.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEngine">
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestWWWModule">
-      <HintPath>H:\KSP1111\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <HintPath>H:\Games\SteamLibrary\steamapps\common\Kerbal Space Program - BH\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

@@ -734,7 +734,7 @@ namespace Kopernicus
                 {
                     if (by == 0 || by == result.height - 1 || Math.Abs(source.GetPixel(bx, by).r) < 0.01)
                     {
-                        result.SetPixel(bx, by, new Color(0.5f, 0.5f, 0.5f, 0.5f));
+                        result.SetPixel(bx, by, new Color(0.5f, 0.5f, 1f, 1f));
                     }
                     else
                     {
@@ -750,7 +750,7 @@ namespace Kopernicus
                         Double slopeX = (1 + dX / Math.Pow(dX * dX + dS * dS, 0.5) * strength) / 2;
                         Double slopeY = (1 + dY / Math.Pow(dY * dY + dS * dS, 0.5) * strength) / 2;
 
-                        result.SetPixel(bx, by, new Color((Single)slopeY, (Single)slopeY, (Single)slopeY, (Single)slopeX));
+                        result.SetPixel(bx, by, new Color((float)slopeX, (float)slopeY, (float)1, (float)1));
                     }
                 }
             }
