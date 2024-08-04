@@ -1,4 +1,5 @@
 ﻿Kopernicus Bleeding Edge
+ This repository is mothballed, and no longer in use.
 ==============================
 October 22nd, 2022
 * Created by: BryceSchroeder and Teknoman117 (aka. Nathaniel R. Lewis)
@@ -7,6 +8,7 @@ October 22nd, 2022
 * Additional Content by: Gravitasi, aftokino, KCreator, Padishar, Kragrathea, OvenProofMars, zengei, MrHappyFace, Sigma88, Majiir (CompatibilityChecker)
 * Much thanks to Sarbian for ModuleManager and ModularFlightIntegrator
 * Corrected thermodynamics and effects by yours truly, LudicrousFun.
+
 
 The Bleeding Edge is where beta code is trialed by fire, so if you want to help: Welcome!  If you want a stable experience, please use the stable brance at https://github.com/Kopernicus/Kopernicus instead.
 
