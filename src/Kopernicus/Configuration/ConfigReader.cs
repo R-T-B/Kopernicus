@@ -66,6 +66,8 @@ namespace Kopernicus.Configuration
         public bool EnableVisualAtmosphericExtinction = false;
         [Persistent]
         public bool EnablePhysicalAtmosphericExtinction = false;
+        [Persistent]
+        public bool EnableRealisticFlux = false;
 
         public UrlDir.UrlConfig[] baseConfigs;
         public void loadMainSettings()
@@ -100,6 +102,7 @@ namespace Kopernicus.Configuration
                 Debug.Log("SettingsWindowYcoord: " + SettingsWindowYcoord);
                 Debug.Log("EnableVisualAtmosphericExtinction: " + EnableVisualAtmosphericExtinction);
                 Debug.Log("EnablePhysicalAtmosphericExtinction: " + EnablePhysicalAtmosphericExtinction);
+                Debug.Log("EnableRealisticFlux: " + EnableRealisticFlux);
             }
             catch
             {

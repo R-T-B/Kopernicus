@@ -1182,6 +1182,7 @@ namespace Kopernicus.RuntimeUtility
                     configFile.WriteLine("	SettingsWindowYcoord = 0");
                     configFile.WriteLine("	EnableVisualAtmosphericExtinction = False //Boolean. Enables lens flares to be tinted by atmospheric extinction");
                     configFile.WriteLine("	EnablePhysicalAtmosphericExtinction = False //Boolean. Enables atmospheric extinction for solar panels and thermal flux.");
+                    configFile.WriteLine("	EnableRealisticFlux = False //Boolean. Uses 1/d^2 for flux calculations instead of the stock 1/(d - r)^2, where d is distance from center of star and r is radius of star.");
                     configFile.WriteLine("}");
                     configFile.Flush();
                     configFile.Close();
@@ -1225,6 +1226,7 @@ namespace Kopernicus.RuntimeUtility
                     configFile.WriteLine("	SettingsWindowYcoord = " + KopernicusConfig.SettingsWindowYcoord.ToString());
                     configFile.WriteLine("	EnableVisualAtmosphericExtinction = " + KopernicusConfig.EnableVisualAtmosphericExtinction.ToString() + " //Boolean. Enables lens flares to be tinted by atmospheric extinction. Disable when using a mod like Scatterer.");
                     configFile.WriteLine("	EnablePhysicalAtmosphericExtinction = " + KopernicusConfig.EnablePhysicalAtmosphericExtinction.ToString() + " //Boolean. Enables atmospheric extinction for solar panels and thermal flux.");
+                    configFile.WriteLine("	EnableRealisticFlux = " + KopernicusConfig.EnableRealisticFlux.ToString() + " //Boolean. Uses 1/d^2 for flux calculations instead of the stock 1/(d - r)^2, where d is distance from center of star and r is radius of star");
                     configFile.WriteLine("}");
                     configFile.Flush();
                     configFile.Close();

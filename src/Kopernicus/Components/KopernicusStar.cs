@@ -356,15 +356,16 @@ namespace Kopernicus.Components
             if (!Physics.Raycast(ray, out RaycastHit raycastHit, Single.MaxValue, ModularFlightIntegrator.SunLayerMask))
             {
                 directSunlight = true;
-                realDistanceToSun = (truePosition - sunPosition).magnitude;
+                realDistanceToSun = (truePosition - sunPosition).magnitude - solarRad;
             }
             else if (raycastHit.transform.GetComponent<ScaledMovement>().celestialBody == sun)
             {
-                realDistanceToSun = ScaledSpace.ScaleFactor * raycastHit.distance + solarRad;
+                realDistanceToSun = ScaledSpace.ScaleFactor * raycastHit.distance;
                 directSunlight = true;
             }
             if (directSunlight)
             {
+                realDistanceToSun += RuntimeUtility.RuntimeUtility.KopernicusConfig.EnableRealisticFlux ? solarRad : 0d;
                 double atmosphericFraction = RuntimeUtility.RuntimeUtility.KopernicusConfig.EnablePhysicalAtmosphericExtinction ? ThermoHelper.SunlightPercentage(truePosition, this) : 1d;
                 return PhysicsGlobals.SolarLuminosity / (realDistanceToSun * realDistanceToSun * 4d * 3.14159265358979d) * atmosphericFraction;
             }
@@ -461,15 +462,16 @@ namespace Kopernicus.Components
                 if (!Physics.Raycast(ray, out RaycastHit raycastHit, Single.MaxValue, ModularFlightIntegrator.SunLayerMask))
                 {
                     directSunlight = true;
-                    realDistanceToSun = (truePosition - sunPosition).magnitude;
+                    realDistanceToSun = (truePosition - sunPosition).magnitude - solarRad;
                 }
                 else if (raycastHit.transform.GetComponent<ScaledMovement>().celestialBody == star.sun)
                 {
-                    realDistanceToSun = ScaledSpace.ScaleFactor * raycastHit.distance + solarRad;
+                    realDistanceToSun = ScaledSpace.ScaleFactor * raycastHit.distance;
                     directSunlight = true;
                 }
                 if (directSunlight)
                 {
+                    realDistanceToSun += RuntimeUtility.RuntimeUtility.KopernicusConfig.EnableRealisticFlux ? solarRad : 0d;
                     double atmosphericFraction = RuntimeUtility.RuntimeUtility.KopernicusConfig.EnablePhysicalAtmosphericExtinction ? ThermoHelper.SunlightPercentage(truePosition, star) : 1d;
                     return PhysicsGlobals.SolarLuminosity / (realDistanceToSun * realDistanceToSun * 4d * 3.14159265358979d) * atmosphericFraction;
                 }
