@@ -65,11 +65,11 @@ namespace Kopernicus.Components
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-            frameTimer++;
             if (HighLogic.LoadedSceneIsFlight)
             {
                 if (deployState == ModuleDeployablePart.DeployState.EXTENDED)
                 {
+                    frameTimer++;
                     if (frameTimer > (50 * Kopernicus.RuntimeUtility.RuntimeUtility.KopernicusConfig.SolarRefreshRate))
                     {
                         CelestialBody trackingStar = trackingBody;
@@ -218,7 +218,7 @@ namespace Kopernicus.Components
                 status = Localizer.Format("#Kopernicus_UI_PanelBlocked", blockingObject);
                 return;
             }
-            status = "Direct Sunlight";
+            status = SP_status_DirectSunlight;
             if (panelType == PanelType.FLAT)
             {
                 sunAOA = Mathf.Clamp(Vector3.Dot(trackingDotTransform.forward, trackDir), 0f, 1f);

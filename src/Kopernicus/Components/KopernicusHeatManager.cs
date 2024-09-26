@@ -68,7 +68,7 @@ namespace Kopernicus.Components
         /// <returns></returns>
         public static double ApproximateChapmanFunc(double radius, double signedDistanceFromLowest, double altitude, double scaleHeight)
         {
-            if (altitude / radius < -scaleHeight / radius * 3.5 && signedDistanceFromLowest / radius < -.05)
+            if (altitude / radius < -scaleHeight / radius * 3 && signedDistanceFromLowest / radius < -.06)
             {
                 altitude /= scaleHeight;
                 radius /= scaleHeight;
@@ -77,7 +77,7 @@ namespace Kopernicus.Components
                 return Math.Exp((signedDistanceFromLowest * Math.Sqrt(c) + c) / radius) * Math.Sqrt(Math.Abs(.5d * radius / altitude));
             }
             double final = MagicIntegrationA(radius, altitude, scaleHeight) / (1d + Math.Exp(MagicIntegrationB(radius, altitude, scaleHeight) * -signedDistanceFromLowest / scaleHeight));
-            if (radius / scaleHeight > 5)
+            if (radius / scaleHeight > 4.5)
                 final /= Math.Exp(-0.3d * signedDistanceFromLowest / scaleHeight - radius * .1d - 1d) + 1d;
             return final;
         }
@@ -94,7 +94,7 @@ namespace Kopernicus.Components
             altitude /= scaleHeight;
             return Math.Exp(radius + .9d - Math.Abs(radius + altitude)) * Math.Sqrt(Math.Abs(radius + altitude) + .65d);
         }
-
+        
         public static double AtmosphericOpticalDepth(CelestialBody a, Vector3d originalPos, Vector3d direction)
         {
             if (!a.atmosphere)

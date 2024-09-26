@@ -60,17 +60,21 @@ namespace Kopernicus.Components
             base.OnDestroy();
         }
 
-        private void AtmosphericScattering()
+        private void AtmosphericScattering(Vector3d cameraPosition)
         {
             FrameCounter++;
             if (FrameCounter < RuntimeUtility.RuntimeUtility.KopernicusConfig.SolarRefreshRate * 20) // Save resources
                 return;
             FrameCounter = UnityEngine.Random.Range(0, 10);
 
-            float density = (float)ThermoHelper.OpticalDepth(ScaledSpace.LocalToScaledSpace(PlanetariumCamera.fetch.transform.position) * -ScaledSpace.ScaleFactor, KopernicusStar.CelestialBodies[sun]);
+            float density = (float)ThermoHelper.OpticalDepth(cameraPosition, KopernicusStar.CelestialBodies[sun]);
+
             float r = Mathf.Exp(.1f - density * .3f);
             float g = Mathf.Exp(.1f - density * .72f);
             float b = Mathf.Exp(.1f - density * 1.65f);
+
+            if (float.IsNaN(r) || float.IsNaN(g) || float.IsNaN(b)) return;
+
             KopernicusStar.CelestialBodies[sun].atmosphericTintCache = new Color(r, g, b);
         }
 
@@ -87,15 +91,21 @@ namespace Kopernicus.Components
                                                            ScaledSpace.LocalToScaledSpace(sun.position)) /
                                                        (AU * ScaledSpace.InverseScaleFactor))));
             sunFlare.enabled = true;
-            
-            if (PlanetariumCamera.fetch.target == null ||
-                HighLogic.LoadedScene != GameScenes.TRACKSTATION && HighLogic.LoadedScene != GameScenes.FLIGHT)
-            {
+
+            if (!RuntimeUtility.RuntimeUtility.KopernicusConfig.EnableVisualAtmosphericExtinction)
                 return;
+
+            Vector3d camPos = Vector3d.zero;
+            if (PlanetariumCamera.fetch.target == null || HighLogic.LoadedScene != GameScenes.TRACKSTATION && HighLogic.LoadedScene != GameScenes.FLIGHT)
+            {
+                if (HighLogic.LoadedScene != GameScenes.SPACECENTER) // Still do for space centre (launch pad at 0,0,0 in world space coords always)
+                    return;
             }
+            else
+                camPos = ScaledSpace.LocalToScaledSpace(PlanetariumCamera.fetch.transform.position) * -ScaledSpace.ScaleFactor;
 
             if (RuntimeUtility.RuntimeUtility.KopernicusConfig.EnableVisualAtmosphericExtinction)
-                AtmosphericScattering();
+                AtmosphericScattering(camPos);
         }
     }
 }
